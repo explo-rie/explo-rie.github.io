@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dado de monstruos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+
+<!-- =========================================================
+     CSS = EL ASPECTO (colores, letras, tamaños, posiciones)
+     ========================================================= -->
+<style>
+  /* Diseño: dos columnas. A la izquierda, la pista grande;
+     a la derecha, el resumen de las pistas. En el móvil, una debajo de otra.
+     Aquí arriba están los colores y las letras. */
+  :root {
+    --fondo: #E6F4EF;        /* verde menta suave */
+    --papel: #FFFFFF;        /* las tarjetas */
+    --tinta: #1F2340;        /* el texto y las líneas del dibujo */
+    --tinta-suave: #4A5070;
+    --monstruo: #2E9E5B;     /* verde monstruo (botón) */
+    --naranja: #FF8A3D;      /* la pista actual */
+    --rosa: #E5487F;         /* la sorpresa final */
+    --letra-titulos: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+    --letra-texto: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--fondo);
+    color: var(--tinta);
+    font-family: var(--letra-texto);
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .pagina {
+    max-width: 960px;
+    margin: 0 auto;
+    padding-block: 28px 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-family: var(--letra-titulos);
+    font-weight: 800;
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height: 1.05;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .instrucciones {
+    margin: 0 auto;
+    max-width: 52ch;
+    text-align: center;
+    color: var(--tinta-suave);
+  }
+
+  /* Las dos columnas */
+  .juego {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 20px;
+    align-items: start;
+  }
+  /* Qué va en cada casilla de la cuadrícula:
+     columna 1 = la izquierda, columna 2 = la derecha;
+     fila 1 = arriba, fila 2 = abajo */
+  .cabecera     { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 6px; }
+  .tarjeta-pista { grid-column: 1; grid-row: 2; }
+  .resumen      { grid-column: 2; grid-row: 2; }
+
+  @media (max-width: 720px) {
+    .juego { grid-template-columns: minmax(0, 1fr); }
+    .cabecera, .tarjeta-pista, .resumen { grid-column: auto; grid-row: auto; }
+  }
+
+  /* La tarjeta grande de la pista */
+  .tarjeta-pista {
+    background: var(--papel);
+    border: 3px solid var(--tinta);
+    border-radius: 24px;
+    padding: 24px 20px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .etiqueta {
+    font-family: var(--letra-titulos);
+    font-weight: 600;
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    color: var(--tinta-suave);
+    margin: 0;
+    min-height: 1.2em;
+  }
+
+  .cara-dado {
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--tinta);
+  }
+
+  .pista {
+    font-family: var(--letra-titulos);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 5vw, 2.3rem);
+    line-height: 1.15;
+    margin: 0;
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+
+  /* El botón grande del dado */
+  #boton-dado {
+    font-family: var(--letra-titulos);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--papel);
+    background: var(--monstruo);
+    border: 3px solid var(--tinta);
+    border-radius: 999px;
+    padding: 10px 30px;
+    box-shadow: 0 5px 0 var(--tinta);
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  #boton-dado:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--tinta); }
+  #boton-dado:focus-visible { outline: 4px solid var(--naranja); outline-offset: 4px; }
+  #boton-dado:disabled { cursor: wait; }
+  #boton-dado.sorpresa { background: var(--rosa); }
+
+  /* El resumen de pistas (columna derecha) */
+  .resumen {
+    background: var(--papel);
+    border: 3px solid var(--tinta);
+    border-radius: 18px;
+    padding: 16px 18px;
+  }
+  .resumen h2 {
+    font-family: var(--letra-titulos);
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+  }
+  .resumen ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .resumen li {
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    font-size: 0.98rem;
+    line-height: 1.3;
+  }
+  .resumen .parte {
+    display: block;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+  .resumen .pendiente { color: var(--tinta-suave); }
+  .resumen li.actual { border-color: var(--naranja); }
+
+  /* El monstruo secreto */
+  .zona-monstruo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+  .zona-monstruo svg {
+    width: 100%;
+    max-width: 300px;
+    max-height: 55vh;
+  }
+  .pregunta-final {
+    font-family: var(--letra-titulos);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--rosa);
+    margin: 0;
+  }
+
+  /* Estilo de las líneas del dibujo */
+  .dibujo {
+    fill: var(--papel);
+    stroke: var(--tinta);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dibujo .t { fill: var(--tinta); }   /* t = relleno de tinta */
+  .dibujo .n { fill: none; }           /* n = sin relleno, solo línea */
+
+  /* Animaciones: el dado tiembla y las piezas aparecen una a una */
+  .temblando { animation: temblor 0.12s infinite; }
+  @keyframes temblor {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+  .pieza {
+    animation: aparecer 0.5s ease-out both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  @keyframes aparecer {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .temblando, .pieza { animation: none; }
+  }
+</style>
+
+<!-- =========================================================
+     HTML = EL CONTENIDO (lo que se ve en la página)
+     ========================================================= -->
+</head>
+<body>
+<main class="pagina">
+  <div class="juego">
+    <header class="cabecera">
+      <h1>El monstruo secreto</h1>
+      <p class="instrucciones">Tira el dado, lee y dibuja.</p>
+    </header>
+
+    <section class="tarjeta-pista" aria-live="polite">
+      <p class="etiqueta" id="etiqueta"></p>
+      <div class="cara-dado" id="cara" aria-hidden="true">⚄</div>
+      <p class="pista" id="pista">¡Tira el dado para empezar!</p>
+      <div class="zona-monstruo" id="zona-monstruo" hidden></div>
+      <button id="boton-dado" type="button">Tirar el dado</button>
+    </section>
+
+    <aside class="resumen">
+      <h2>Tus pistas</h2>
+      <ol id="lista-pistas"></ol>
+    </aside>
+  </div>
+</main>
+
+<!-- =========================================================
+     JAVASCRIPT = LA INTERACCIÓN (lo que pasa al hacer clic)
+     ========================================================= -->
+<script>
+  // ---------- AYUDANTES PARA DIBUJAR ----------
+  // "espejo" copia un dibujo y lo pone también al otro lado (ojos, brazos...)
+  function espejo(svg) {
+    return svg + '<g transform="translate(300 0) scale(-1 1)">' + svg + '</g>';
+  }
+  // "aLaDerecha" pone el dibujo solo en el lado derecho
+  function aLaDerecha(svg) {
+    return '<g transform="translate(300 0) scale(-1 1)">' + svg + '</g>';
+  }
+  // Una pierna con su pie
+  function pierna(x, desde, hasta, pieGrande) {
+    const lado = x < 150 ? -1 : (x > 150 ? 1 : 0);
+    const ancho = pieGrande ? 18 : 13;
+    return '<path class="n" d="M' + x + ' ' + desde + ' L' + x + ' ' + hasta + '"/>' +
+           '<ellipse cx="' + (x + lado * 7) + '" cy="' + (hasta + 5) + '" rx="' + ancho + '" ry="7"/>';
+  }
+
+  // =========================================================
+  // 1. LOS DATOS: las 8 partes, en el orden en que se tiran.
+  //    Cada parte tiene 6 opciones (una por número del dado).
+  //    Cada opción tiene:
+  //      - texto: la pista que lee el alumno (¡cámbiala cuando quieras!)
+  //      - dibujo: DIBUJO PROVISIONAL. Más adelante pondremos aquí
+  //        los dibujos de Laurie.
+  //    La cabeza y el cuerpo tienen además "medidas", para que
+  //    el pelo, los brazos y las piernas se coloquen en su sitio.
+  // =========================================================
+  const partes = [
+    {
+      nombre: "La cabeza",
+      opciones: [
+        { texto: "Tiene la cabeza redonda.", medidas: { arriba: 75, ancho: 55 },
+          dibujo: m => '<circle cx="150" cy="135" r="60"/>' },
+        { texto: "Tiene la cabeza cuadrada.", medidas: { arriba: 75, ancho: 58 },
+          dibujo: m => '<rect x="90" y="75" width="120" height="120" rx="12"/>' },
+        { texto: "Tiene la cabeza ovalada.", medidas: { arriba: 67, ancho: 40 },
+          dibujo: m => '<ellipse cx="150" cy="135" rx="48" ry="68"/>' },
+        { texto: "Tiene la cabeza en forma de triángulo.", medidas: { arriba: 78, ancho: 66 },
+          dibujo: m => '<path d="M76 82 Q150 70 224 82 L150 205 Z"/>' },
+        { texto: "Tiene la cabeza muy grande.", medidas: { arriba: 59, ancho: 68 },
+          dibujo: m => '<circle cx="150" cy="135" r="76"/>' },
+        { texto: "Tiene la cabeza muy pequeña.", medidas: { arriba: 87, ancho: 42 },
+          dibujo: m => '<circle cx="150" cy="135" r="48"/>' }
+      ]
+    },
+    {
+      nombre: "El pelo",
+      opciones: [
+        { texto: "Tiene el pelo rizado.",
+          dibujo: m => {
+            let rizos = "";
+            for (let x = 150 - m.ancho + 12; x <= 150 + m.ancho - 12; x += 14) {
+              rizos += '<circle cx="' + x + '" cy="' + (m.arriba + 4) + '" r="11"/>';
+            }
+            return rizos;
+          } },
+        { texto: "Tiene tres pelos de punta.",
+          dibujo: m => '<path class="n" d="M136 ' + (m.arriba + 10) + ' L124 ' + (m.arriba - 34) +
+                       ' M150 ' + (m.arriba + 8) + ' L150 ' + (m.arriba - 42) +
+                       ' M164 ' + (m.arriba + 10) + ' L176 ' + (m.arriba - 34) + '"/>' },
+        { texto: "Tiene dos cuernos.",
+          dibujo: m => {
+            const a = 150 - m.ancho * 0.8, b = 150 - m.ancho * 0.3, t = m.arriba;
+            return espejo('<path d="M' + a + ' ' + (t + 16) + ' Q' + (a - 8) + ' ' + (t - 14) + ' ' +
+                          (a - 4) + ' ' + (t - 38) + ' Q' + b + ' ' + (t - 12) + ' ' + b + ' ' + (t + 16) + ' Z"/>');
+          } },
+        { texto: "Tiene dos antenas.",
+          dibujo: m => espejo('<path class="n" d="M136 ' + (m.arriba + 8) + ' L122 ' + (m.arriba - 34) + '"/>' +
+                              '<circle class="t" cx="122" cy="' + (m.arriba - 40) + '" r="7"/>') },
+        { texto: "No tiene pelo. ¡Es calvo!",
+          dibujo: m => '' },
+        { texto: "Lleva una corona.",
+          dibujo: m => {
+            const t = m.arriba;
+            return '<path d="M116 ' + (t + 14) + ' L116 ' + (t - 26) + ' L133 ' + (t - 8) + ' L150 ' + (t - 36) +
+                   ' L167 ' + (t - 8) + ' L184 ' + (t - 26) + ' L184 ' + (t + 14) + ' Z"/>' +
+                   '<circle class="t" cx="116" cy="' + (t - 30) + '" r="4"/>' +
+                   '<circle class="t" cx="150" cy="' + (t - 40) + '" r="4"/>' +
+                   '<circle class="t" cx="184" cy="' + (t - 30) + '" r="4"/>';
+          } }
+      ]
+    },
+    {
+      nombre: "Los ojos",
+      opciones: [
+        { texto: "Tiene un ojo grande.",
+          dibujo: m => '<circle cx="150" cy="113" r="20"/><circle class="t" cx="150" cy="117" r="8"/>' },
+        { texto: "Tiene dos ojos.",
+          dibujo: m => espejo('<circle cx="128" cy="115" r="11"/><circle class="t" cx="129" cy="117" r="5"/>') },
+        { texto: "Tiene tres ojos.",
+          dibujo: m => '<circle cx="124" cy="115" r="9"/><circle class="t" cx="124" cy="117" r="4"/>' +
+                       '<circle cx="150" cy="111" r="9"/><circle class="t" cx="150" cy="113" r="4"/>' +
+                       '<circle cx="176" cy="115" r="9"/><circle class="t" cx="176" cy="117" r="4"/>' },
+        { texto: "Tiene dos ojos y lleva gafas.",
+          dibujo: m => espejo('<circle cx="130" cy="115" r="7"/><circle class="t" cx="130" cy="116" r="3.5"/>' +
+                              '<circle class="n" cx="130" cy="115" r="15"/>') +
+                       '<path class="n" d="M145 113 L155 113"/>' },
+        { texto: "Tiene los ojos cerrados.",
+          dibujo: m => espejo('<path class="n" d="M118 114 Q128 124 138 114"/>') },
+        { texto: "Tiene cuatro ojos pequeños.",
+          dibujo: m => espejo('<circle cx="133" cy="105" r="6"/><circle class="t" cx="133" cy="106" r="2.5"/>' +
+                              '<circle cx="133" cy="124" r="6"/><circle class="t" cx="133" cy="125" r="2.5"/>') }
+      ]
+    },
+    {
+      nombre: "La nariz",
+      opciones: [
+        { texto: "Tiene la nariz pequeña.",
+          dibujo: m => '<circle class="t" cx="150" cy="142" r="4"/>' },
+        { texto: "Tiene la nariz larga, como una zanahoria.",
+          dibujo: m => '<path d="M147 135 L196 146 L147 151 Z"/>' },
+        { texto: "Tiene nariz de cerdito.",
+          dibujo: m => '<ellipse cx="150" cy="143" rx="13" ry="9"/>' +
+                       '<ellipse class="t" cx="145" cy="143" rx="2.5" ry="3.5"/>' +
+                       '<ellipse class="t" cx="155" cy="143" rx="2.5" ry="3.5"/>' },
+        { texto: "Tiene una nariz redonda de payaso.",
+          dibujo: m => '<circle class="t" cx="150" cy="142" r="11"/>' },
+        { texto: "No tiene nariz.",
+          dibujo: m => '' },
+        { texto: "Tiene la nariz pequeña y bigote.",
+          dibujo: m => '<circle class="t" cx="150" cy="140" r="4"/>' +
+                       '<path class="t" d="M150 151 Q134 144 118 157 Q136 158 150 154 Q164 158 182 157 Q166 144 150 151 Z"/>' }
+      ]
+    },
+    {
+      nombre: "La boca",
+      opciones: [
+        { texto: "Tiene una boca sonriente.",
+          dibujo: m => '<path class="n" d="M130 166 Q150 186 170 166"/>' },
+        { texto: "Tiene una boca triste.",
+          dibujo: m => '<path class="n" d="M130 178 Q150 162 170 178"/>' },
+        { texto: "Tiene un solo diente.",
+          dibujo: m => '<path class="t" d="M128 165 Q150 192 172 165 Z"/>' +
+                       '<rect x="145" y="165" width="10" height="10" rx="2"/>' },
+        { texto: "Tiene muchos dientes.",
+          dibujo: m => '<path class="t" d="M126 164 L174 164 Q150 196 126 164 Z"/>' +
+                       '<path d="M128 165 L134 174 L140 165 L146 174 L152 165 L158 174 L164 165 L170 174 L173 165 Z"/>' },
+        { texto: "Tiene la boca en forma de O.",
+          dibujo: m => '<ellipse class="t" cx="150" cy="172" rx="9" ry="11"/>' },
+        { texto: "Saca la lengua.",
+          dibujo: m => '<path d="M141 171 Q141 192 150 192 Q159 192 159 171 Z"/>' +
+                       '<path class="n" d="M150 175 L150 185"/>' +
+                       '<path class="n" d="M130 166 Q150 180 170 166"/>' }
+      ]
+    },
+    {
+      nombre: "El cuerpo",
+      opciones: [
+        { texto: "Tiene el cuerpo redondo.",
+          medidas: { brazoX: 84, brazoY: 262, piernaA: 110, piernaB: 190, piernaY: 330 },
+          dibujo: m => '<ellipse cx="150" cy="282" rx="72" ry="72"/>' },
+        { texto: "Tiene el cuerpo cuadrado.",
+          medidas: { brazoX: 86, brazoY: 250, piernaA: 105, piernaB: 195, piernaY: 330 },
+          dibujo: m => '<rect x="84" y="208" width="132" height="142" rx="14"/>' },
+        { texto: "Tiene el cuerpo en forma de triángulo.",
+          medidas: { brazoX: 104, brazoY: 290, piernaA: 92, piernaB: 208, piernaY: 340 },
+          dibujo: m => '<path d="M150 205 L232 352 L68 352 Z"/>' },
+        { texto: "Tiene el cuerpo largo y delgado.",
+          medidas: { brazoX: 120, brazoY: 250, piernaA: 130, piernaB: 170, piernaY: 335 },
+          dibujo: m => '<rect x="118" y="205" width="64" height="150" rx="28"/>' },
+        { texto: "Tiene el cuerpo con rayas.",
+          medidas: { brazoX: 86, brazoY: 250, piernaA: 105, piernaB: 195, piernaY: 330 },
+          dibujo: m => '<clipPath id="recorte-rayas"><rect x="84" y="208" width="132" height="142" rx="30"/></clipPath>' +
+                       '<rect x="84" y="208" width="132" height="142" rx="30"/>' +
+                       '<g clip-path="url(#recorte-rayas)"><path class="n" d="M80 238 L220 238 M80 266 L220 266 M80 294 L220 294 M80 322 L220 322"/></g>' },
+        { texto: "Tiene el cuerpo con lunares.",
+          medidas: { brazoX: 84, brazoY: 262, piernaA: 110, piernaB: 190, piernaY: 330 },
+          dibujo: m => '<ellipse cx="150" cy="282" rx="72" ry="72"/>' +
+                       '<circle class="t" cx="150" cy="240" r="7"/><circle class="t" cx="118" cy="262" r="8"/>' +
+                       '<circle class="t" cx="178" cy="268" r="9"/><circle class="t" cx="140" cy="300" r="8"/>' +
+                       '<circle class="t" cx="190" cy="310" r="6"/><circle class="t" cx="112" cy="318" r="6"/>' }
+      ]
+    },
+    {
+      nombre: "Los brazos",
+      opciones: [
+        { texto: "Tiene dos brazos cortos.",
+          dibujo: m => espejo('<path class="n" d="M' + (m.brazoX + 15) + ' ' + m.brazoY + ' L' + (m.brazoX - 28) + ' ' + (m.brazoY + 18) + '"/>' +
+                              '<circle cx="' + (m.brazoX - 33) + '" cy="' + (m.brazoY + 20) + '" r="6"/>') },
+        { texto: "Tiene dos brazos largos.",
+          dibujo: m => espejo('<path class="n" d="M' + (m.brazoX + 15) + ' ' + m.brazoY + ' Q' + (m.brazoX - 35) + ' ' + (m.brazoY + 5) + ' ' +
+                              (m.brazoX - 58) + ' ' + (m.brazoY + 62) + '"/>' +
+                              '<circle cx="' + (m.brazoX - 60) + '" cy="' + (m.brazoY + 69) + '" r="7"/>') },
+        { texto: "Tiene cuatro brazos.",
+          dibujo: m => espejo('<path class="n" d="M' + (m.brazoX + 15) + ' ' + (m.brazoY - 14) + ' L' + (m.brazoX - 30) + ' ' + (m.brazoY - 38) +
+                              ' M' + (m.brazoX + 15) + ' ' + (m.brazoY + 18) + ' L' + (m.brazoX - 30) + ' ' + (m.brazoY + 38) + '"/>' +
+                              '<circle cx="' + (m.brazoX - 34) + '" cy="' + (m.brazoY - 41) + '" r="6"/>' +
+                              '<circle cx="' + (m.brazoX - 34) + '" cy="' + (m.brazoY + 41) + '" r="6"/>') },
+        { texto: "No tiene brazos.",
+          dibujo: m => '' },
+        { texto: "Tiene un solo brazo.",
+          dibujo: m => aLaDerecha('<path class="n" d="M' + (m.brazoX + 15) + ' ' + m.brazoY + ' L' + (m.brazoX - 40) + ' ' + (m.brazoY - 50) + '"/>' +
+                                  '<circle cx="' + (m.brazoX - 44) + '" cy="' + (m.brazoY - 55) + '" r="7"/>') },
+        { texto: "Tiene dos tentáculos.",
+          dibujo: m => espejo('<path class="n" style="stroke-width:8" d="M' + (m.brazoX + 15) + ' ' + m.brazoY +
+                              ' C' + (m.brazoX - 30) + ' ' + (m.brazoY - 35) + ' ' + (m.brazoX - 40) + ' ' + (m.brazoY + 45) + ' ' +
+                              (m.brazoX - 70) + ' ' + (m.brazoY + 15) + '"/>') }
+      ]
+    },
+    {
+      nombre: "Las piernas",
+      opciones: [
+        { texto: "Tiene dos piernas.",
+          dibujo: m => {
+            const s = Math.min(28, (m.piernaB - m.piernaA) / 2);
+            return pierna(150 - s, m.piernaY, 420) + pierna(150 + s, m.piernaY, 420);
+          } },
+        { texto: "Tiene tres piernas.",
+          dibujo: m => {
+            const s = Math.min(28, (m.piernaB - m.piernaA) / 2) * 1.4;
+            return pierna(150 - s, m.piernaY, 420) + pierna(150, m.piernaY, 420) + pierna(150 + s, m.piernaY, 420);
+          } },
+        { texto: "Tiene una sola pierna.",
+          dibujo: m => pierna(150, m.piernaY, 420, true) },
+        { texto: "Tiene seis patas.",
+          dibujo: m => {
+            let patas = "";
+            for (let i = 0; i < 6; i++) {
+              const x = m.piernaA + (m.piernaB - m.piernaA) * i / 5;
+              const fin = x + (x - 150) * 0.5;
+              patas += '<path class="n" d="M' + x + ' ' + m.piernaY + ' L' + fin + ' 398"/>' +
+                       '<ellipse cx="' + fin + '" cy="401" rx="8" ry="5"/>';
+            }
+            return patas;
+          } },
+        { texto: "Tiene dos piernas muy largas.",
+          dibujo: m => {
+            const s = Math.min(24, (m.piernaB - m.piernaA) / 2);
+            return pierna(150 - s, m.piernaY, 468) + pierna(150 + s, m.piernaY, 468);
+          } },
+        { texto: "Tiene ruedas en vez de piernas.",
+          dibujo: m => {
+            const r = Math.min(22, (m.piernaB - m.piernaA) / 2.6);
+            const s = Math.max(r + 4, Math.min(28, (m.piernaB - m.piernaA) / 2) + 6);
+            const y = 350 + r - 4;
+            return '<circle cx="' + (150 - s) + '" cy="' + y + '" r="' + r + '"/><circle class="t" cx="' + (150 - s) + '" cy="' + y + '" r="5"/>' +
+                   '<circle cx="' + (150 + s) + '" cy="' + y + '" r="' + r + '"/><circle class="t" cx="' + (150 + s) + '" cy="' + y + '" r="5"/>';
+          } }
+      ]
+    }
+  ];
+
+  // Las caras del dado (del 1 al 6)
+  const carasDado = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+  // ---------- 2. Buscamos los elementos de la página ----------
+  const boton = document.getElementById("boton-dado");
+  const etiqueta = document.getElementById("etiqueta");
+  const cara = document.getElementById("cara");
+  const pista = document.getElementById("pista");
+  const zonaMonstruo = document.getElementById("zona-monstruo");
+  const listaPistas = document.getElementById("lista-pistas");
+
+  let turno = 0;          // qué parte toca (0 = cabeza, 1 = pelo...)
+  let resultados = [];    // los números que han salido
+  let revelado = false;   // ¿ya se ha visto el monstruo?
+
+  // ---------- 3. El resumen de pistas (columna derecha) ----------
+  function actualizarResumen() {
+    listaPistas.innerHTML = "";
+    partes.forEach(function (parte, i) {
+      const li = document.createElement("li");
+      // Naranja = la parte que acaba de salir (la última tirada)
+      if (i === turno - 1 && !revelado) li.className = "actual";
+      let texto = '<span class="pendiente">—</span>';
+      if (resultados[i]) {
+        texto = parte.opciones[resultados[i] - 1].texto;
+      }
+      li.innerHTML = '<span class="parte">' + parte.nombre + '</span>' + texto;
+      listaPistas.appendChild(li);
+    });
+  }
+
+  // ---------- 4. Tirar el dado ----------
+  function tirarDado() {
+    // ¡La línea mágica! Un número al azar del 1 al 6
+    const numero = Math.floor(Math.random() * 6) + 1;
+    const parte = partes[turno];
+
+    etiqueta.textContent = parte.nombre;
+    pista.textContent = "…";
+
+    // El dado tiembla y cambia de cara un momento
+    boton.disabled = true;
+    cara.classList.add("temblando");
+    let vueltas = 0;
+    const animacion = setInterval(function () {
+      cara.textContent = carasDado[Math.floor(Math.random() * 6)];
+      vueltas++;
+      if (vueltas === 8) {
+        clearInterval(animacion);
+        cara.classList.remove("temblando");
+        cara.textContent = carasDado[numero - 1];
+        pista.textContent = parte.opciones[numero - 1].texto;
+        resultados[turno] = numero;
+        turno++;
+        boton.disabled = false;
+        if (turno === partes.length) {
+          boton.textContent = "¡Ver el monstruo secreto!";
+          boton.classList.add("sorpresa");
+        }
+        actualizarResumen();
+      }
+    }, 70);
+  }
+
+  // ---------- 5. Revelar el monstruo secreto ----------
+  function revelarMonstruo() {
+    revelado = true;
+    // Las opciones elegidas de cada parte
+    const elegidas = partes.map(function (parte, i) {
+      return parte.opciones[resultados[i] - 1];
+    });
+    // Juntamos las medidas de la cabeza (0) y del cuerpo (5)
+    const m = Object.assign({}, elegidas[0].medidas, elegidas[5].medidas);
+
+    // Orden de dibujo: lo de atrás primero (piernas, brazos, cuerpo...)
+    // Número = posición en la lista "partes"
+    const ordenDibujo = [7, 6, 5, 1, 0, 2, 3, 4];
+    let piezas = "";
+    ordenDibujo.forEach(function (i) {
+      // La cabeza lleva un cuello, para que nunca quede flotando
+      const cuello = (i === 0) ? '<rect x="140" y="165" width="20" height="52" rx="6"/>' : '';
+      piezas += '<g class="pieza" style="animation-delay:' + (i * 0.35) + 's">' + cuello + elegidas[i].dibujo(m) + '</g>';
+    });
+
+    const descripcion = elegidas.map(o => o.texto).join(" ");
+    zonaMonstruo.innerHTML =
+      '<svg viewBox="0 0 300 490" role="img" aria-label="El monstruo secreto. ' + descripcion + '">' +
+        '<defs><filter id="garabato" x="-10%" y="-10%" width="120%" height="120%">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4"/>' +
+          '<feDisplacementMap in="SourceGraphic" scale="3.5"/>' +
+        '</filter></defs>' +
+        '<g class="dibujo" filter="url(#garabato)">' + piezas + '</g>' +
+      '</svg>' +
+      '<p class="pregunta-final">¿Se parece a tu dibujo?</p>';
+
+    etiqueta.textContent = "¡Sorpresa!";
+    cara.hidden = true;
+    pista.hidden = true;
+    zonaMonstruo.hidden = false;
+    boton.textContent = "Otro monstruo";
+    boton.classList.remove("sorpresa");
+    actualizarResumen();
+  }
+
+  // ---------- 6. Empezar de nuevo ----------
+  function empezar() {
+    turno = 0;
+    resultados = [];
+    revelado = false;
+    etiqueta.textContent = "";
+    cara.textContent = "⚄";
+    cara.hidden = false;
+    pista.hidden = false;
+    pista.textContent = "¡Tira el dado para empezar!";
+    zonaMonstruo.hidden = true;
+    zonaMonstruo.innerHTML = "";
+    boton.textContent = "Tirar el dado";
+    actualizarResumen();
+  }
+
+  // ---------- 7. ¿Qué hace el botón? Depende del momento ----------
+  boton.addEventListener("click", function () {
+    if (turno < partes.length) {
+      tirarDado();
+    } else if (!revelado) {
+      revelarMonstruo();
+    } else {
+      empezar();
+    }
+  });
+
+  empezar();
+</script>
+</body>
+</html>
