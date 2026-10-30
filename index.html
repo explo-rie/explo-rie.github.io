@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>explo-rie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zeyada&family=Roboto:wght@300&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+
+<!-- =========================================================
+     CSS = EL ASPECTO
+     ========================================================= -->
+<style>
+  /* Diseño: fondo blanco marfil, la frase grande arriba
+     y debajo la galería de juegos.
+     Colores sacados del esmalte de la cerámica de rie. */
+  :root {
+    --tinta: #3E2337;        /* ciruela oscuro: textos y bordes */
+    --tinta-suave: #6E4A62;
+    --papel: #FFFFFF;        /* el interior de las tarjetas */
+    --marfil: #FBF8F1;       /* el fondo */
+    --rosa-esmalte: #C2588A; /* la virgulilla y los puntos del dado */
+    --letra-titulos: "Zeyada", "Segoe Print", "Bradley Hand", cursive;
+    --letra-texto: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+    --letra-tarjetas: "Roboto", "Helvetica Neue", Arial, sans-serif;
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--marfil);
+    color: var(--tinta);
+    font-family: var(--letra-texto);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .pagina {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-block: 28px 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ---------- El nombre: explorie ---------- */
+  .logo {
+    font-family: var(--letra-titulos);
+    font-size: clamp(2.2rem, 7vw, 3.2rem);
+    line-height: 1;
+    margin: 0;
+    text-align: center;
+    color: var(--tinta);
+  }
+  .logo span { color: var(--rosa-esmalte); } /* "lorie" en rosa */
+
+  /* ---------- La frase grande ---------- */
+  h1 {
+    font-family: var(--letra-titulos);
+    font-weight: 400;
+    font-size: clamp(3.6rem, 15vw, 8.5rem);
+    line-height: 1.1;
+    margin: 0 0 16px;
+    text-align: center;
+    color: var(--tinta);
+  }
+  .palabra { white-space: nowrap; }
+
+  /* La ñ es un botón: se puede tocar */
+  .letra {
+    position: relative;
+    display: inline-block;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    line-height: inherit;
+  }
+  .letra:focus-visible { outline: 3px dashed var(--rosa-esmalte); outline-offset: 4px; border-radius: 8px; }
+
+  /* La virgulilla: un dibujo encima de la n */
+  .virgulilla {
+    position: absolute;
+    left: 50%;
+    top: 0.12em;
+    width: 0.4em;
+    height: 0.2em;
+    transform: translateX(-50%);
+    overflow: visible;
+    pointer-events: none;
+  }
+  .virgulilla path {
+    fill: none;
+    stroke: var(--rosa-esmalte);
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---------- La galería ---------- */
+  .galeria {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 24px;
+  }
+
+  .tarjeta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    min-height: 200px;
+    padding: 16px 20px;
+    background: var(--papel);
+    border: 3px solid var(--tinta);
+    border-radius: 22px;
+    box-shadow: 0 5px 0 var(--tinta);
+    color: var(--tinta);
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  a.tarjeta:hover { transform: translateY(-4px) rotate(-0.6deg); box-shadow: 0 9px 0 var(--tinta); }
+  a.tarjeta:focus-visible { outline: 3px dashed var(--rosa-esmalte); outline-offset: 6px; }
+
+  .tarjeta svg { width: 80px; height: 80px; flex-shrink: 0; }
+  .tarjeta h2 {
+    font-family: var(--letra-tarjetas);
+    font-weight: 300;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  /* Las tarjetas de "Muy pronto" */
+  .pronto {
+    background: transparent;
+    border-style: dashed;
+    box-shadow: none;
+  }
+  .pronto .etiqueta {
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+  .pronto h2 { color: var(--tinta-suave); }
+
+  /* El dado de la tarjeta */
+  .icono-dado .cara { fill: var(--papel); stroke: var(--tinta); stroke-width: 4; }
+  .icono-dado .punto { fill: var(--rosa-esmalte); }
+
+  @media (prefers-reduced-motion: reduce) {
+    a.tarjeta { transition: none; }
+    a.tarjeta:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     HTML = EL CONTENIDO
+     ========================================================= -->
+
+<main class="pagina">
+  <p class="logo">exp<span>lorie</span></p>
+
+  <h1>
+    <span class="palabra">Explora</span>
+    <span class="palabra">en</span>
+    <span class="palabra">espa<button class="letra" id="letra-n" type="button" aria-label="ñ: toca para escuchar una guitarra">n<svg class="virgulilla" viewBox="0 0 100 50" aria-hidden="true"><path id="virgulilla"/></svg></button>ol</span>
+  </h1>
+
+  <ul class="galeria">
+    <li>
+      <a class="tarjeta" href="dado.html">
+        <svg class="icono-dado" viewBox="0 0 100 100" aria-hidden="true">
+          <g transform="rotate(-8 50 50)">
+            <rect x="14" y="14" width="72" height="72" rx="16" class="cara"/>
+            <circle cx="33" cy="33" r="6.5" class="punto"/><circle cx="67" cy="33" r="6.5" class="punto"/>
+            <circle cx="50" cy="50" r="6.5" class="punto"/>
+            <circle cx="33" cy="67" r="6.5" class="punto"/><circle cx="67" cy="67" r="6.5" class="punto"/>
+          </g>
+        </svg>
+        <h2>El monstruo secreto</h2>
+      </a>
+    </li>
+    <li>
+      <div class="tarjeta pronto">
+        <span class="etiqueta">Muy pronto</span>
+        <h2>Mapa de palabras</h2>
+      </div>
+    </li>
+    <li>
+      <div class="tarjeta pronto">
+        <span class="etiqueta">Muy pronto</span>
+        <h2>Calendario de efemérides</h2>
+      </div>
+    </li>
+  </ul>
+</main>
+
+<!-- =========================================================
+     JAVASCRIPT = LA INTERACCIÓN
+     ========================================================= -->
+<script>
+  // ---------- 1. LA VIRGULILLA QUE VIBRA ----------
+  // La virgulilla es como una cuerda: tiene dos puntas fijas
+  // y se mueve más por el centro.
+  const virgulilla = {
+    elemento: document.getElementById("virgulilla"),
+    // Su forma es una ola: ~
+    forma: u => [8 + u * 84, 27 - 13 * Math.sin(u * Math.PI * 2)],
+    fuerza: 0,   // cuánto vibra ahora mismo
+    inicio: 0    // cuándo empezó a vibrar
+  };
+
+  // Dibuja la virgulilla: calcula 24 puntos y los une con una línea
+  function dibujarVirgulilla(ahora) {
+    const t = (ahora - virgulilla.inicio) / 1000;             // segundos desde el toque
+    const amplitud = virgulilla.fuerza * Math.exp(-t * 3.2);  // se apaga poco a poco
+    const vaiven = Math.sin(t * Math.PI * 2 * 11);            // va y viene 11 veces por segundo
+    let d = "";
+    for (let i = 0; i <= 24; i++) {
+      const u = i / 24;
+      const punto = virgulilla.forma(u);
+      const empuje = amplitud * vaiven * Math.sin(Math.PI * u); // más en el centro
+      d += (i === 0 ? "M" : "L") + punto[0].toFixed(1) + " " + (punto[1] + empuje).toFixed(1) + " ";
+    }
+    virgulilla.elemento.setAttribute("d", d);
+    return amplitud > 0.2; // ¿sigue vibrando?
+  }
+
+  // La animación: redibuja la virgulilla mientras vibre
+  let animando = false;
+  function animar(ahora) {
+    if (dibujarVirgulilla(ahora)) {
+      requestAnimationFrame(animar);
+    } else {
+      animando = false;
+    }
+  }
+
+  // Hace vibrar la virgulilla con cierta fuerza
+  const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function hacerVibrar(fuerza) {
+    if (sinMovimiento) return;
+    virgulilla.fuerza = fuerza;
+    virgulilla.inicio = performance.now();
+    if (!animando) {
+      animando = true;
+      requestAnimationFrame(animar);
+    }
+  }
+
+  // ---------- 2. EL SONIDO DE CUERDA ----------
+  // Se fabrica con matemáticas (algoritmo "Karplus-Strong"):
+  // un ruido muy corto que se repite y se suaviza, como una cuerda.
+  // Más adelante: grabaciones reales de varios instrumentos.
+  const guitarra = { nota: 110.00, brillo: 0.5 }; // la grave
+  let audio = null;
+  function tocarCuerda(frecuencia, brillo, duracion) {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    const muestras = Math.floor(audio.sampleRate * duracion);
+    const buffer = audio.createBuffer(1, muestras, audio.sampleRate);
+    const sonido = buffer.getChannelData(0);
+    // Dos cuerdas casi iguales, como un orden doble
+    [frecuencia, frecuencia * 1.004].forEach(function (f) {
+      const largo = Math.round(audio.sampleRate / f);
+      const cuerda = new Float32Array(largo);
+      for (let i = 0; i < largo; i++) cuerda[i] = Math.random() * 2 - 1;
+      let pos = 0;
+      for (let i = 0; i < muestras; i++) {
+        const siguiente = (pos + 1) % largo;
+        const valor = cuerda[pos];
+        cuerda[pos] = 0.996 * ((1 - brillo) * valor + brillo * cuerda[siguiente]);
+        sonido[i] += valor * 0.25;
+        pos = siguiente;
+      }
+    });
+    const fuente = audio.createBufferSource();
+    fuente.buffer = buffer;
+    fuente.connect(audio.destination);
+    fuente.start();
+  }
+
+  // ---------- 3. CONECTAMOS LA Ñ ----------
+  const boton = document.getElementById("letra-n");
+  // Al pasar el ratón por encima: vibra suave, sin sonido
+  boton.addEventListener("pointerenter", function () {
+    hacerVibrar(7);
+  });
+  // Al hacer clic (o tocar en el móvil): vibra fuerte y suena
+  boton.addEventListener("click", function () {
+    hacerVibrar(16);
+    tocarCuerda(guitarra.nota, guitarra.brillo, 2.5);
+  });
+
+  // Dibujamos la virgulilla quieta al empezar
+  dibujarVirgulilla(0);
+
+  // Un pequeño "saludo": al cargar, la virgulilla vibra un poquito
+  setTimeout(function () { hacerVibrar(6); }, 800);
+</script>
+</body>
+</html>
