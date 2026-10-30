@@ -265,35 +265,36 @@
     }
   }
 
-  // ---------- 2. EL SONIDO DE CUERDA ----------
-  // Se fabrica con matemáticas (algoritmo "Karplus-Strong"):
-  // un ruido muy corto que se repite y se suaviza, como una cuerda.
-  // Más adelante: grabaciones reales de varios instrumentos.
-  const guitarra = { nota: 110.00, brillo: 0.5 }; // la grave
-  let audio = null;
-  function tocarCuerda(frecuencia, brillo, duracion) {
+  // ---------- 2. EL SONIDO: una grabación real ----------
+  // El archivo de sonido está en la misma carpeta que esta página.
+  // Para cambiarlo por otro instrumento, cambia el nombre del archivo.
+  const archivoSonido = "guitarra.mp3";
+
+  let audio = null;      // el "equipo de sonido" del navegador
+  let grabacion = null;  // la grabación, ya cargada
+
+  // Carga la grabación (solo la primera vez)
+  async function cargarSonido() {
     if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-    const muestras = Math.floor(audio.sampleRate * duracion);
-    const buffer = audio.createBuffer(1, muestras, audio.sampleRate);
-    const sonido = buffer.getChannelData(0);
-    // Dos cuerdas casi iguales, como un orden doble
-    [frecuencia, frecuencia * 1.004].forEach(function (f) {
-      const largo = Math.round(audio.sampleRate / f);
-      const cuerda = new Float32Array(largo);
-      for (let i = 0; i < largo; i++) cuerda[i] = Math.random() * 2 - 1;
-      let pos = 0;
-      for (let i = 0; i < muestras; i++) {
-        const siguiente = (pos + 1) % largo;
-        const valor = cuerda[pos];
-        cuerda[pos] = 0.996 * ((1 - brillo) * valor + brillo * cuerda[siguiente]);
-        sonido[i] += valor * 0.25;
-        pos = siguiente;
-      }
-    });
-    const fuente = audio.createBufferSource();
-    fuente.buffer = buffer;
-    fuente.connect(audio.destination);
-    fuente.start();
+    if (!grabacion) {
+      const respuesta = await fetch(archivoSonido);
+      const datos = await respuesta.arrayBuffer();
+      grabacion = await audio.decodeAudioData(datos);
+    }
+  }
+
+  // Toca la grabación desde el principio
+  async function tocarSonido() {
+    try {
+      await cargarSonido();
+      const fuente = audio.createBufferSource();
+      fuente.buffer = grabacion;
+      fuente.connect(audio.destination);
+      fuente.start();
+    } catch (error) {
+      // Si el archivo no se encuentra, la ñ sigue vibrando sin sonido
+      console.log("No se pudo cargar el sonido:", error);
+    }
   }
 
   // ---------- 3. CONECTAMOS LA Ñ ----------
@@ -305,7 +306,7 @@
   // Al hacer clic (o tocar en el móvil): vibra fuerte y suena
   boton.addEventListener("click", function () {
     hacerVibrar(16);
-    tocarCuerda(guitarra.nota, guitarra.brillo, 2.5);
+    tocarSonido();
   });
 
   // Dibujamos la virgulilla quieta al empezar
