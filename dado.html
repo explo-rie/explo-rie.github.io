@@ -71,7 +71,8 @@
 
   /* El monstruo secreto */
   .zona-monstruo { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
-  .zona-monstruo > svg { width: 100%; max-width: 320px; height: max(220px, calc(100dvh - 340px)); }
+  /* El monstruo: tan ancho como quepa, sin pasarse de alto, para que se vea con el botón */
+  .zona-monstruo > svg { display: block; width: 100%; max-width: 360px; height: auto; max-height: max(260px, calc(100dvh - 300px)); }
   .pregunta-final { font-family: var(--letra-titulos); font-weight: 800; font-size: 1.5rem; color: var(--rosa); margin: 0; }
 
   /* Animaciones: el dado tiembla y las piezas aparecen una a una */
@@ -305,8 +306,8 @@
     piezas.push(colocar("boca-" + n[4], ajusteCara));
 
     // Lo que ocupa el monstruo, para que quepa entero en el recuadro
-    const arriba = Math.min(0, Math.min.apply(null, piezas.map(x => x.arriba))) - 10;
-    const abajo = Math.max(980, Math.max.apply(null, piezas.map(x => x.abajo))) + 10;
+    const arriba = Math.min.apply(null, piezas.map(x => x.arriba)) - 10;
+    const abajo = Math.max.apply(null, piezas.map(x => x.abajo)) + 10;
 
     let contenido = "";
     piezas.forEach(function (x, i) {
