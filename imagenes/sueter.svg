@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Dibujo provisional: cambia este archivo por tu ilustración -->
+  <g stroke="#3E2337" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cuerpo y mangas largas -->
+    <path d="M36 12 L64 12 L84 22 L94 78 L80 80 L74 42 L74 84 L26 84 L26 42 L20 80 L6 78 L16 22 Z" fill="#C27A62"/>
+    <!-- cuello -->
+    <path d="M36 12 C40 20 60 20 64 12" fill="#D4A39A"/>
+    <!-- puños y bajo de punto -->
+    <path d="M26 78 L74 78 L74 88 L26 88 Z" fill="#D4A39A"/>
+    <path d="M6 74 L20 76 L19 84 L5 82 Z M94 74 L80 76 L81 84 L95 82 Z" fill="#D4A39A"/>
+  </g>
+  <!-- dibujo de punto -->
+  <g fill="none" stroke="#FBF8F1" stroke-width="2.5" stroke-linecap="round">
+    <path d="M34 50 L40 56 L46 50 L52 56 L58 50 L64 56"/>
+    <path d="M34 62 L40 68 L46 62 L52 68 L58 62 L64 68"/>
+  </g>
+  <g stroke="#3E2337" stroke-width="1.5">
+    <path d="M32 80 V87 M40 80 V87 M48 80 V87 M56 80 V87 M64 80 V87"/>
+  </g>
+</svg>

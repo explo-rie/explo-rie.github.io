@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Dibujo provisional: cambia este archivo por tu ilustración -->
+  <g stroke="#3E2337" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- pan de atrás -->
+    <path d="M16 50 C16 34 84 34 84 50 Z" fill="#DDB46A"/>
+    <!-- salchicha: sale por los dos lados del pan -->
+    <rect x="3" y="45" width="94" height="14" rx="7" fill="#C27A62"/>
+    <!-- pan de delante -->
+    <path d="M14 55 C14 74 86 74 86 55 Z" fill="#E3C89C"/>
+    <!-- mostaza -->
+    <path d="M14 50 L21 46 L28 51 L35 46 L42 51 L49 46 L56 51 L63 46 L70 51 L77 46 L84 50" fill="none" stroke="#F2C230" stroke-width="3.5"/>
+  </g>
+</svg>

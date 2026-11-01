@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Dibujo provisional: cambia este archivo por tu ilustración -->
+  <g stroke="#3E2337" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- arete izquierdo -->
+    <path d="M30 12 C24 12 24 22 30 22" fill="none"/>
+    <line x1="30" y1="22" x2="30" y2="40"/>
+    <circle cx="30" cy="44" r="5" fill="#DDB46A"/>
+    <path d="M30 50 L18 78 L30 92 L42 78 Z" fill="#C2588A"/>
+    <!-- arete derecho -->
+    <path d="M70 12 C64 12 64 22 70 22" fill="none"/>
+    <line x1="70" y1="22" x2="70" y2="40"/>
+    <circle cx="70" cy="44" r="5" fill="#DDB46A"/>
+    <path d="M70 50 L58 78 L70 92 L82 78 Z" fill="#C2588A"/>
+  </g>
+  <circle cx="26" cy="72" r="2.5" fill="#FFF6DD"/>
+  <circle cx="66" cy="72" r="2.5" fill="#FFF6DD"/>
+</svg>
