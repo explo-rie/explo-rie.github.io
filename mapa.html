@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Cómo se dice en…? · explo-rie</title>
+
+<!-- Letras de Google Fonts (licencia libre): las mismas de la guía de estilo -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Zeyada solo para el logo; Raleway para todo lo demás -->
+<link href="https://fonts.googleapis.com/css2?family=Zeyada&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- =========================================================
+     CSS = EL ASPECTO (colores, tamaños, posiciones)
+     ========================================================= -->
+<style>
+  /* Colores de la guía de estilo de explo-rie, guardados con nombre
+     para usarlos en todo el archivo. Cambia uno aquí y cambia en todas partes. */
+  :root {
+    --marfil:  #FBF8F1;   /* fondo */
+    --ciruela: #3E2337;   /* textos y bordes */
+    --rosa:    #C2588A;   /* acento y país elegido */
+    --papel:   #F3ECE0;   /* recuadros y panel */
+    --gris:    #E6DED1;   /* países donde no se habla español */
+    --suave:   #7A6573;   /* textos secundarios */
+
+    /* LA LETRA DE TODA LA PÁGINA (menos el logo). Prueba a cambiarla por:
+       "Barlow Condensed", "Raleway", "Saira" o "Roboto Mono" */
+    --letra: "Raleway";
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--marfil);
+    color: var(--ciruela);
+    font-family: var(--letra), sans-serif;
+  }
+
+  /* ---------- Título y logo ---------- */
+  h1 { grid-area: titulo; text-align: center; }
+  footer { grid-area: logo; text-align: center; margin-top: 6px; }
+  .logo {
+    font-family: "Zeyada", cursive;       /* el logo, siempre en Zeyada */
+    font-size: 30px;
+    color: var(--ciruela);
+    text-decoration: none;
+  }
+  .logo span { color: var(--rosa); }
+  h1 {
+    font-family: var(--letra), sans-serif;
+    font-weight: 300;
+    font-size: clamp(30px, 4.5vw, 46px);
+    margin: 0 0 10px;
+    line-height: 1.1;
+  }
+  /* La ilustración dentro del título */
+  .dibujo-titulo {
+    height: 1.25em;
+    vertical-align: -0.3em;
+    margin: 0 0.05em;
+  }
+
+  /* ---------- Botones de palabras ---------- */
+  .elige {
+    text-align: center;
+    color: var(--suave);
+    font-size: 15px;
+    margin: 16px 0 8px;
+  }
+  .palabras {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  /* Botones redondos con el dibujo de cada palabra */
+  .palabras button {
+    width: 46px;
+    height: 46px;
+    padding: 6px;
+    background: var(--papel);
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .palabras button img { width: 100%; height: 100%; object-fit: contain; }
+  .palabras button:hover { border-color: var(--ciruela); }
+  .palabras button[aria-pressed="true"] { border-color: var(--rosa); background: white; }
+  /* Si solo hay una palabra, no hace falta enseñar los botones */
+  .palabras:has(button:only-child),
+  .lateral:has(.palabras button:only-child) .elige { display: none; }
+
+
+  /* Pequeño salto del dibujo al cambiar de palabra */
+  @keyframes salto {
+    0%   { transform: scale(0.6); }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .salta { animation: salto 0.35s ease-out; }
+
+  /* ---------- Zona principal: mapa + panel ---------- */
+  /* La página es una cuadrícula: dos columnas (mapa | panel) y tres filas
+     (pregunta, mapa y panel, logo). Cada parte dice en qué zona va. */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-areas:
+      "titulo  .      "
+      "mapa    lateral"
+      "logo    .      ";
+    column-gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px 16px;
+    align-items: start;
+  }
+  .mapa-caja { grid-area: mapa; }
+  .lateral   { grid-area: lateral; }
+  /* El mapa va dentro de una tarjeta, igual que el panel */
+  .mapa-caja {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+    background: var(--papel);
+    border-radius: 18px;
+    padding: 12px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 150px);
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* Países */
+  .fondo   { fill: var(--gris); stroke: var(--papel); stroke-width: 0.8; }
+  .pais    {
+    stroke: var(--papel);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill 0.4s;
+  }
+  .pais:hover, .pais:focus, .pais.encima { stroke: var(--ciruela); stroke-width: 1.6; outline: none; }
+  .pais.elegido             { fill: var(--rosa) !important; stroke: var(--ciruela); stroke-width: 1.6; }
+
+  /* Recuadros de España y Guinea Ecuatorial */
+  .recuadro { fill: var(--marfil); stroke: #D9CDBE; stroke-width: 1.5; }
+  .etiqueta.pequena { font-size: 18px; }
+  .etiqueta { font-family: var(--letra), sans-serif; font-size: 22px; fill: var(--suave); }
+
+  /* Cartelito con el nombre del país al pasar el ratón */
+  /* Leyenda de colores, abajo a la izquierda del mapa */
+  .flecha .arriba { display: none; }
+
+  .leyenda {
+    position: absolute;
+    left: 22px;
+    bottom: 22px;
+    font-size: 13px;
+    color: var(--ciruela);
+  }
+  .leyenda p { margin: 0 0 6px; color: var(--suave); font-size: 14px; }
+  .leyenda ul[hidden] { display: none; }
+  .ver-todas {
+    font-family: var(--letra), sans-serif;
+    font-size: 13px;
+    color: var(--rosa);
+    background: transparent;
+    border: 1.5px solid var(--rosa);
+    border-radius: 999px;
+    padding: 3px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .ver-todas:hover { background: white; }
+  .leyenda ul {
+    list-style: none; margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: auto auto;   /* dos columnas */
+    column-gap: 16px;
+  }
+  .leyenda li { display: flex; align-items: center; gap: 6px; margin: 1px 0; }
+  .leyenda .punto {
+    width: 13px; height: 13px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .leyenda .nota-leyenda { color: var(--suave); }
+
+  .cartel {
+    position: absolute;
+    pointer-events: none;
+    background: var(--ciruela);
+    color: var(--marfil);
+    font-size: 14px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    display: none;
+    z-index: 10;          /* por encima del panel */
+  }
+
+  /* ---------- Panel de la derecha ---------- */
+  .lateral {
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 16px;
+  }
+  aside {
+    background: var(--papel);
+    border-radius: 18px;
+    padding: 22px;
+    min-height: 420px;
+  }
+  .inicio {
+    text-align: center;
+    color: var(--suave);
+    margin-top: 110px;
+    font-size: 18px;
+  }
+  .inicio .flecha { font-family: var(--letra), sans-serif; font-size: 26px; color: var(--rosa); }
+
+  .cabeza {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .cabeza img {
+    width: 76px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(62, 35, 55, 0.25);
+  }
+  .cabeza h2 {
+    font-family: var(--letra), sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    margin: 0;
+  }
+  .tema {
+    font-size: 15px;
+    color: var(--suave);
+    margin: 0 0 6px;
+  }
+
+  /* Bocadillo de cómic con la palabra principal */
+  .bocadillo {
+    position: relative;
+    background: white;
+    border: 2px solid var(--ciruela);
+    border-radius: 26px;
+    padding: 6px 18px 2px;
+    margin: 0 0 26px;
+    text-align: center;
+  }
+  .bocadillo::after {              /* la "colita" del bocadillo */
+    content: "";
+    position: absolute;
+    left: 34px;
+    bottom: -14px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-right: 2px solid var(--ciruela);
+    border-bottom: 2px solid var(--ciruela);
+    transform: skewX(-25deg) rotate(45deg);
+  }
+  .principal {
+    position: relative;   /* para que la letra quede por encima de la colita */
+    z-index: 1;
+    font-family: var(--letra), sans-serif;
+    font-size: 50px;
+    line-height: 1.1;
+    color: var(--rosa);
+  }
+  .nota { position: relative; z-index: 1; display: block; font-size: 14px; color: var(--suave); font-family: var(--letra), sans-serif; }
+
+  .otras-titulo { font-size: 15px; color: var(--suave); margin: 0 0 4px; }
+  .otras { list-style: none; padding: 0; margin: 0; }
+  .otras li {
+    font-family: var(--letra), sans-serif;
+    font-weight: 300;
+    font-size: 23px;
+    padding: 7px 0;
+    border-bottom: 1px dashed #D9CDBE;
+  }
+
+  /* Enlace al formulario para proponer palabras */
+  .proponer {
+    display: block;
+    margin-top: 22px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--rosa);
+    border: 1.5px dashed var(--rosa);
+    border-radius: 14px;
+    padding: 10px;
+    text-decoration: none;
+  }
+  .proponer:hover { background: white; }
+
+  /* ---------- Pantallas pequeñas (móvil y tableta) ---------- */
+  @media (max-width: 820px) {
+    main  {
+      grid-template-columns: 1fr;
+      grid-template-areas: "titulo" "mapa" "lateral" "logo";
+      row-gap: 14px;
+    }
+    .lateral { width: 100%; position: static; }
+    aside { min-height: 0; }
+    .inicio { margin: 10px 0; }
+    svg   { max-height: none; }
+    .leyenda { position: static; margin: 8px 6px 2px; }
+    .flecha .izq { display: none; }      /* en el móvil el mapa está arriba */
+    .flecha .arriba { display: inline; }
+  }
+</style>
+</head>
+
+<body>
+<!-- =========================================================
+     HTML = EL CONTENIDO (lo que hay en la página)
+     ========================================================= -->
+<main>
+  <!-- La pregunta, encima del mapa y centrada con él -->
+  <h1>¿Cómo se dice <img id="dibujoTitulo" class="dibujo-titulo" src="" alt=""> en…?</h1>
+
+  <div class="mapa-caja" id="mapaCaja">
+    <svg id="mapa" viewBox="0 0 1060 900" role="img" aria-label="Mapa de los países hispanohablantes"></svg>
+    <div class="cartel" id="cartel"></div>
+    <div class="leyenda" id="leyenda"></div>
+  </div>
+
+  <div class="lateral">
+    <aside id="panel" aria-live="polite">
+      <div class="inicio">
+        <div class="flecha"><span class="izq">←</span><span class="arriba">↑</span> ¡Toca un país!</div>
+        <p>y descubre cómo se dice allí.</p>
+      </div>
+    </aside>
+    <p class="elige">Elige otro dibujo:</p>
+    <div class="palabras" id="botones"></div>
+  </div>
+  <!-- El logo, pequeño y centrado debajo del mapa -->
+  <footer>
+    <a class="logo" href="index.html">exp<span>lorie</span></a>
+  </footer>
+</main>
+
+<!-- Primero cargamos los datos (tus palabras y las formas del mapa)... -->
+<script src="mapa-palabras.js"></script>
+<script src="mapa-formas.js"></script>
+
+<!-- =========================================================
+     JAVASCRIPT = LA INTERACCIÓN (qué pasa al tocar)
+     ========================================================= -->
+<script>
+  // Color de cada país (tonos tierra). Cambia el color que quieras.
+  // Islas que forman parte de otro país: usan sus palabras
+  const PARTE_DE = {
+    "Islas Baleares": "España",
+    "Isla de Pascua": "Chile",
+  };
+
+  // Lo que dice el cartelito al pasar el ratón (si no está aquí, sale el nombre tal cual)
+  const CARTEL = {
+    "Islas Canarias":    "Islas Canarias (España)",
+    "Islas Baleares":    "Islas Baleares (España)",
+    "Isla de Pascua":    "Isla de Pascua (Chile)",
+    "Guinea Ecuatorial": "Guinea Ecuatorial (África)",
+  };
+
+  // Colores de las palabras (tonos tierra). Cada palabra principal recibe uno:
+  // la más repetida, el primero; la segunda, el segundo… Hay 18 colores.
+  const PALETA = ["#D08C6B", "#9FB58A", "#DDB46A", "#8FA9B5", "#A99BB8", "#7FA39A",
+                  "#A86F7E", "#C7B85F", "#6F8FA6", "#8A6A55", "#8C9A5B", "#E3C89C",
+                  "#5F8A80", "#9C7FA0", "#D4A39A", "#7D9B76", "#6E5A7A", "#C9A0B0"];
+
+  const svg    = document.getElementById("mapa");
+  const panel  = document.getElementById("panel");
+  const cartel = document.getElementById("cartel");
+  const NS     = "http://www.w3.org/2000/svg";   // necesario para crear dibujos SVG
+
+  let palabraActual = Object.keys(PALABRAS)[0];  // empieza con la primera palabra
+  let paisActual    = null;
+
+  // --- 1. Dibujar el mapa ---------------------------------------------
+
+  // Función pequeña para crear un elemento SVG con sus atributos
+  function crear(tipo, atributos) {
+    const el = document.createElementNS(NS, tipo);
+    for (const nombre in atributos) el.setAttribute(nombre, atributos[nombre]);
+    svg.appendChild(el);
+    return el;
+  }
+
+  // Países en gris (fondo)
+  FORMAS_FONDO.forEach(d => crear("path", { d: d, class: "fondo" }));
+
+  // Recuadros de la esquina
+  // Están a la derecha, como en la realidad: al otro lado del Atlántico.
+  // España arriba (al norte) y Guinea Ecuatorial a la altura del ecuador.
+  crear("rect", { x: 660, y: 14,  width: 390, height: 292, rx: 20, class: "recuadro" });
+  crear("rect", { x: 830, y: 336, width: 220, height: 168, rx: 20, class: "recuadro" });
+
+  // Capa para las "zonas invisibles" (va debajo de todos los países)
+  const capaZonas = crear("g", {});
+
+  // Países que se pueden tocar
+  const todas = Object.assign({}, FORMAS_AMERICA, FORMAS_RECUADROS);
+  for (const nombre in todas) {
+    const p = crear("path", {
+      d: todas[nombre],
+      class: "pais",
+      tabindex: 0,                 // para poder llegar con el teclado (Tab)
+      role: "button",
+      "aria-label": nombre,
+    });
+    p.dataset.nombre = nombre;
+    conectar(p, nombre);
+
+    // Los lugares muy pequeños (islas, Puerto Rico…) son difíciles de tocar.
+    // Les ponemos una "zona invisible" más grande alrededor que también funciona.
+    const caja = p.getBBox();
+    const pequeno = caja.width < 40 || caja.height < 40 || nombre === "Islas Canarias" || nombre === "Guinea Ecuatorial";
+    if (pequeno && nombre !== "España") {
+      const margen = 8;
+      const zona = crear("rect", {
+        x: caja.x - margen, y: caja.y - margen,
+        width: caja.width + margen * 2, height: caja.height + margen * 2,
+        fill: "transparent", cursor: "pointer",
+      });
+      capaZonas.appendChild(zona);        // la zona va debajo de los países
+      conectar(zona, nombre);
+      zona.addEventListener("mouseenter", () => p.classList.add("encima"));
+      zona.addEventListener("mouseleave", () => p.classList.remove("encima"));
+    }
+  }
+
+  // Qué pasa al tocar, al usar el teclado o al pasar el ratón
+  function conectar(el, nombre) {
+    el.addEventListener("click", () => elegirPais(nombre));
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirPais(nombre); } });
+    el.addEventListener("mousemove", e => mostrarCartel(nombre, e));
+    el.addEventListener("mouseleave", () => cartel.style.display = "none");
+  }
+
+  // --- 2. Cartelito con el nombre al pasar el ratón ---------------------
+  function mostrarCartel(nombre, e) {
+    const caja = document.getElementById("mapaCaja").getBoundingClientRect();
+    cartel.textContent = CARTEL[nombre] || nombre;
+    cartel.style.display = "block";
+    let x = e.clientX - caja.left + 12;
+    // Si estamos muy a la derecha, el cartel sale a la izquierda del ratón
+    if (x + cartel.offsetWidth > caja.width) x = e.clientX - caja.left - cartel.offsetWidth - 12;
+    cartel.style.left = x + "px";
+    cartel.style.top  = (e.clientY - caja.top  - 30) + "px";
+  }
+
+  // --- 3. Botones de palabras (salen solos de tu archivo de palabras) ----
+  const botones = document.getElementById("botones");
+  for (const clave in PALABRAS) {
+    const b = document.createElement("button");
+    b.innerHTML = '<img src="' + PALABRAS[clave].imagen + '" alt="">';
+    b.setAttribute("aria-label", PALABRAS[clave].descripcion);
+    b.addEventListener("click", () => elegirPalabra(clave));
+    b.dataset.clave = clave;
+    botones.appendChild(b);
+  }
+
+  function elegirPalabra(clave) {
+    palabraActual = clave;
+    botones.querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.clave === clave));
+    const dibujo = document.getElementById("dibujoTitulo");
+    dibujo.src = PALABRAS[clave].imagen;
+    dibujo.alt = PALABRAS[clave].descripcion;
+    dibujo.classList.remove("salta");
+    void dibujo.offsetWidth;            // truco para que la animación se repita
+    dibujo.classList.add("salta");
+    pintarMapa();
+    if (paisActual) elegirPais(paisActual);   // actualiza el panel
+  }
+
+  // --- Pintar el mapa: misma primera palabra = mismo color -------------
+  function palabraPrincipal(pais) {
+    const lista = PALABRAS[palabraActual].paises[pais];
+    return lista ? separar(lista[0]).palabra.toLowerCase() : null;
+  }
+
+  let leyendaAbierta = false;   // ¿se ven todas las palabras de la leyenda?
+
+  function pintarMapa() {
+    // 1. Contamos en cuántos lugares es principal cada palabra
+    const cuenta = {};
+    for (const pais in PALABRAS[palabraActual].paises) {
+      const p = palabraPrincipal(pais);
+      cuenta[p] = (cuenta[p] || 0) + 1;
+    }
+    // 2. Cada palabra recibe un color (de más a menos repetida; si empatan, por orden alfabético)
+    const palabras = Object.keys(cuenta)
+      .sort((a, b) => cuenta[b] - cuenta[a] || a.localeCompare(b, "es"));
+    const colorDe = {};
+    palabras.forEach((p, i) => colorDe[p] = PALETA[i % PALETA.length]);
+
+    // 3. Pintamos cada lugar (las islas, con la palabra de su país)
+    svg.querySelectorAll(".pais").forEach(el => {
+      const p = palabraPrincipal(PARTE_DE[el.dataset.nombre] || el.dataset.nombre);
+      el.setAttribute("fill", colorDe[p] || "#D9CDBE");   // sin datos: beige
+    });
+
+    // 4. Leyenda
+    // La lista empieza escondida: se abre con el botón «Ver la leyenda de colores»
+    let html = '<button class="ver-todas" aria-expanded="' + leyendaAbierta + '">' +
+               (leyendaAbierta ? 'Ocultar la leyenda' : 'Ver la leyenda de colores') + '</button>' +
+               '<ul' + (leyendaAbierta ? '' : ' hidden') + '>';
+    palabras.forEach(p => {
+      html += '<li><span class="punto" style="background:' + colorDe[p] + '"></span>' + p + '</li>';
+    });
+    html += '</ul>';
+    const leyenda = document.getElementById("leyenda");
+    leyenda.innerHTML = html;
+    leyenda.querySelector(".ver-todas").addEventListener("click", () => {
+      leyendaAbierta = !leyendaAbierta;
+      pintarMapa();                      // vuelve a dibujar la leyenda abierta o cerrada
+    });
+  }
+
+  // --- 4. Al tocar un país: rellenar el panel ---------------------------
+
+  // Separa "pururú (Córdoba)" en palabra = "pururú" y nota = "Córdoba"
+  function separar(texto) {
+    const m = texto.match(/^(.*?)\s*\((.*)\)\s*$/);
+    return m ? { palabra: m[1], nota: m[2] } : { palabra: texto, nota: "" };
+  }
+
+  function elegirPais(nombre) {
+    paisActual = nombre;
+
+    // Pintar de rosa solo el país elegido
+    svg.querySelectorAll(".pais").forEach(p =>
+      p.classList.toggle("elegido",
+        p.dataset.nombre === nombre || PARTE_DE[p.dataset.nombre] === nombre));
+
+    const datos  = PALABRAS[palabraActual];
+    const pais   = PARTE_DE[nombre] || nombre;     // las islas usan las palabras de su país
+    const lista  = datos.paises[pais] || [];
+    const bandera = '<img src="banderas/' + BANDERAS[nombre] + '.svg" alt="Bandera de ' + nombre + '">';
+
+    let html = '<div class="cabeza">' + bandera + '<h2>' + nombre + '</h2></div>';
+    const en = nombre.startsWith("Islas") ? "En las " : nombre.startsWith("Isla ") ? "En la " : "En ";
+    html += '<p class="tema">' + en + nombre + ' se dice:</p>';
+
+    if (lista.length === 0) {
+      html += '<div class="bocadillo"><div class="principal">¿…?</div>' +
+              '<span class="nota">Todavía no lo sabemos.</span></div>';
+    } else {
+      const primera = separar(lista[0]);
+      html += '<div class="bocadillo"><div class="principal">' + primera.palabra + '</div>' +
+              (primera.nota ? '<span class="nota">' + primera.nota + '</span>' : '') + '</div>';
+
+      if (lista.length > 1) {
+        html += '<p class="otras-titulo">También se dice:</p><ul class="otras">';
+        lista.slice(1).forEach(t => {
+          const o = separar(t);
+          html += '<li>' + o.palabra + (o.nota ? '<span class="nota">' + o.nota + '</span>' : '') + '</li>';
+        });
+        html += '</ul>';
+      }
+    }
+    // Invitación a proponer palabras (solo si hay enlace al formulario)
+    if (FORMULARIO !== "") {
+      html += '<a class="proponer" href="' + FORMULARIO + '" target="_blank" rel="noopener">' +
+              '¿Lo dices de otra forma o hay un error? ¡Cuéntanoslo!</a>';
+    }
+    panel.innerHTML = html;
+  }
+
+  elegirPalabra(palabraActual);
+</script>
+</body>
+</html>

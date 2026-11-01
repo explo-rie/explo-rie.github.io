@@ -158,6 +158,20 @@
   }
   .pronto h2 { color: var(--tinta-suave); }
 
+  /* Los bocadillos de la tarjeta del mapa (más anchos que el dado) */
+  .tarjeta svg.icono-bocadillos { width: 150px; height: 84px; }
+  .icono-bocadillos .globo { fill: var(--papel); stroke: var(--tinta); stroke-width: 3; stroke-linejoin: round; }
+  .icono-bocadillos .rosa  { fill: var(--rosa-esmalte); }
+  .icono-bocadillos .colita { stroke-dasharray: none; }
+  .icono-bocadillos .texto {
+    font-family: var(--letra-tarjetas);
+    font-weight: 400;
+    font-size: 19px;
+    text-anchor: middle;      /* centra el texto en su punto x */
+    fill: var(--tinta);
+  }
+  .icono-bocadillos .blanco { fill: #FFFFFF; }
+
   /* El dado de la tarjeta */
   .icono-dado .cara { fill: var(--papel); stroke: var(--tinta); stroke-width: 4; }
   .icono-dado .punto { fill: var(--rosa-esmalte); }
@@ -198,10 +212,23 @@
       </a>
     </li>
     <li>
-      <div class="tarjeta pronto">
-        <span class="etiqueta">Muy pronto</span>
+      <a class="tarjeta" href="mapa.html">
+        <svg class="icono-bocadillos" viewBox="0 0 180 100" aria-hidden="true">
+          <!-- bocadillo 1: blanco, con la colita abajo a la izquierda -->
+          <g transform="rotate(-5 60 35)">
+            <rect x="6" y="10" width="112" height="44" rx="22" class="globo"/>
+            <path d="M30 52 L22 70 L44 53" class="globo colita"/>
+            <text x="62" y="39" class="texto">¡palomitas!</text>
+          </g>
+          <!-- bocadillo 2: rosa, con la colita abajo a la derecha -->
+          <g transform="rotate(4 120 68)">
+            <rect x="68" y="46" width="104" height="42" rx="21" class="globo rosa"/>
+            <path d="M140 86 L152 98 L128 87" class="globo rosa colita"/>
+            <text x="120" y="74" class="texto blanco">¡pochoclo!</text>
+          </g>
+        </svg>
         <h2>Mapa de palabras</h2>
-      </div>
+      </a>
     </li>
     <li>
       <div class="tarjeta pronto">
