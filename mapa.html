@@ -91,7 +91,7 @@
   .palabras button[aria-pressed="true"] { border-color: var(--rosa); background: white; }
   /* Si solo hay una palabra, no hace falta enseñar los botones */
   .palabras:has(button:only-child),
-  .lateral:has(.palabras button:only-child) .elige { display: none; }
+  .objetos:has(.palabras button:only-child) .elige { display: none; }
 
 
   /* Pequeño salto del dibujo al cambiar de palabra */
@@ -108,9 +108,11 @@
   main {
     display: grid;
     grid-template-columns: 1fr 340px;
+    grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
       "titulo  .      "
       "mapa    lateral"
+      "mapa    objetos"
       "logo    .      ";
     column-gap: 20px;
     max-width: 1200px;
@@ -120,6 +122,7 @@
   }
   .mapa-caja { grid-area: mapa; }
   .lateral   { grid-area: lateral; }
+  .objetos   { grid-area: objetos; }
   /* El mapa va dentro de una tarjeta, igual que el panel */
   .mapa-caja {
     flex: 1;
@@ -205,12 +208,7 @@
   }
 
   /* ---------- Panel de la derecha ---------- */
-  .lateral {
-    width: 340px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 16px;
-  }
+  .lateral { width: 340px; }
   aside {
     background: var(--papel);
     border-radius: 18px;
@@ -308,7 +306,8 @@
   @media (max-width: 820px) {
     main  {
       grid-template-columns: 1fr;
-      grid-template-areas: "titulo" "mapa" "lateral" "logo";
+      grid-template-rows: none;
+      grid-template-areas: "titulo" "objetos" "mapa" "lateral" "logo";
       row-gap: 14px;
     }
     .lateral { width: 100%; position: static; }
@@ -316,6 +315,7 @@
     .inicio { margin: 10px 0; }
     svg   { max-height: none; }
     .leyenda { position: static; margin: 8px 6px 2px; }
+    .elige { margin: 0 0 6px; }
     .flecha .izq { display: none; }      /* en el móvil el mapa está arriba */
     .flecha .arriba { display: inline; }
   }
@@ -343,7 +343,11 @@
         <p>y descubre cómo se dice allí.</p>
       </div>
     </aside>
-    <p class="elige">Elige otro dibujo:</p>
+  </div>
+
+  <!-- Los objetos: en el ordenador, debajo del panel; en el móvil, arriba del mapa -->
+  <div class="objetos">
+    <p class="elige" id="elige">Elige una palabra para empezar:</p>
     <div class="palabras" id="botones"></div>
   </div>
   <!-- El logo, pequeño y centrado debajo del mapa -->
@@ -444,7 +448,11 @@
 
   // Qué pasa al tocar, al usar el teclado o al pasar el ratón
   function conectar(el, nombre) {
-    el.addEventListener("click", () => elegirPais(nombre));
+    el.addEventListener("click", () => {
+      elegirPais(nombre);
+      // En el móvil el panel está debajo del mapa: bajamos hasta él
+      if (window.innerWidth <= 820) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirPais(nombre); } });
     el.addEventListener("mousemove", e => mostrarCartel(nombre, e));
     el.addEventListener("mouseleave", () => cartel.style.display = "none");
@@ -473,8 +481,10 @@
     botones.appendChild(b);
   }
 
-  function elegirPalabra(clave) {
+  function elegirPalabra(clave, alEmpezar) {
     palabraActual = clave;
+    // Al principio: «Elige una palabra para empezar:»; después de tocar una: «Elige otra palabra:»
+    if (!alEmpezar) document.getElementById("elige").textContent = "Elige otra palabra:";
     botones.querySelectorAll("button").forEach(b =>
       b.setAttribute("aria-pressed", b.dataset.clave === clave));
     const dibujo = document.getElementById("dibujoTitulo");
@@ -581,7 +591,7 @@
     panel.innerHTML = html;
   }
 
-  elegirPalabra(palabraActual);
+  elegirPalabra(palabraActual, true);   // true = es la primera vez
 </script>
 </body>
 </html>

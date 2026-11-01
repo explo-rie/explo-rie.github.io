@@ -28,7 +28,7 @@ const BANDERAS = {
   "Isla de Pascua": "cl",
   "Islas Baleares": "es",
   "España": "es",
-  "Islas Canarias": "es-cn",
+  "Islas Canarias": "es",
   "Guinea Ecuatorial": "gq"
 };
 
