@@ -64,7 +64,7 @@ const PALABRAS = {
       "Nicaragua":            ["chinelas"],
       "Costa Rica":           ["chancletas", "chinelas"],
       "Panamá":               ["chancletas", "chinelas"],
-      "Cuba":                 ["chancletas"],
+      "Cuba":                 ["chancletas", "cutaras (Oriente)"],
       "República Dominicana": ["chancletas"],
       "Puerto Rico":          ["chancletas", "chanclas"],
       "Venezuela":            ["cholas", "chancletas"],
