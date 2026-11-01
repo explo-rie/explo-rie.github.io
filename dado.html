@@ -122,7 +122,7 @@
         "Tiene la cabeza redonda.",
         "Tiene la cabeza cuadrada.",
         "Tiene la cabeza ovalada.",
-        "Tiene la cabeza como un triángulo.",
+        "Tiene la cabeza en forma de triángulo.",
         "Tiene la cabeza muy grande.",
         "Tiene la cabeza muy pequeña."] },
     { clave: "pelo", nombre: "El pelo", pistas: [
@@ -136,12 +136,12 @@
         "Tiene un ojo grande.",
         "Tiene dos ojos.",
         "Tiene tres ojos.",
-        "Tiene dos ojos y gafas.",
+        "Tiene dos ojos y lleva gafas.",
         "Tiene los ojos cerrados.",
         "Tiene cuatro ojos pequeños."] },
     { clave: "nariz", nombre: "La nariz", pistas: [
         "Tiene la nariz pequeña.",
-        "Tiene la nariz como una zanahoria.",
+        "Tiene la nariz larga, como una zanahoria.",
         "Tiene nariz de cerdito.",
         "Tiene nariz de Pinocho.",
         "No tiene nariz.",
@@ -173,11 +173,15 @@
         "Tiene una pierna.",
         "Tiene seis patas.",
         "Tiene dos piernas muy largas.",
-        "Tiene dos ruedas, no piernas."] }
+        "Tiene ruedas en vez de piernas."] }
   ];
 
   // Las caras del dado (del 1 al 6)
   const carasDado = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+  // Color del trazo de los monstruos: 0 = negro, 1 = blanco.
+  // 0.45 es un gris suave, como de lápiz. ¡Prueba a cambiarlo!
+  const aclarar = 0.45;
 
   // ---------- 2. Buscamos los elementos de la página ----------
   const boton = document.getElementById("boton-dado");
@@ -310,8 +314,12 @@
     });
     const descripcion = partes.map((parte, i) => parte.pistas[n[i] - 1]).join(" ");
     zonaMonstruo.innerHTML =
-      '<svg viewBox="0 ' + arriba + ' 600 ' + (abajo - arriba) + '" role="img" aria-label="El monstruo secreto. ' + descripcion + '">' +
-        contenido + '</svg>' +
+      '<svg viewBox="0 ' + arriba + ' 600 ' + (abajo - arriba) + '" role="img" aria-label="El monstruo. ' + descripcion + '">' +
+        // Un "filtro" que aclara el negro y deja el blanco igual
+        '<defs><filter id="suave" color-interpolation-filters="sRGB"><feComponentTransfer>' +
+          ['R', 'G', 'B'].map(c => '<feFunc' + c + ' type="linear" slope="' + (1 - aclarar) + '" intercept="' + aclarar + '"/>').join('') +
+        '</feComponentTransfer></filter></defs>' +
+        '<g filter="url(#suave)">' + contenido + '</g></svg>' +
       '<p class="pregunta-final">¿Es similar a tu dibujo?</p>';
 
     etiqueta.textContent = "¡Sorpresa!";
