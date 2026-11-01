@@ -56,6 +56,9 @@
     margin: 0 0 10px;
     line-height: 1.1;
   }
+  .dibujo-titulo[hidden] { display: none; }   /* sin palabra elegida: no se ve */
+  .lugar-movil { display: none; }
+
   /* La ilustración dentro del título */
   .dibujo-titulo {
     height: 1.25em;
@@ -68,7 +71,7 @@
     text-align: center;
     color: var(--suave);
     font-size: 15px;
-    margin: 16px 0 8px;
+    margin: 0 0 6px;
   }
   .palabras {
     display: flex;
@@ -122,7 +125,7 @@
   }
   .mapa-caja { grid-area: mapa; }
   .lateral   { grid-area: lateral; }
-  .objetos   { grid-area: objetos; }
+  .objetos   { grid-area: objetos; margin-top: 14px; }
   /* El mapa va dentro de una tarjeta, igual que el panel */
   .mapa-caja {
     flex: 1;
@@ -135,7 +138,7 @@
   svg {
     width: 100%;
     height: auto;
-    max-height: calc(100vh - 150px);
+    max-height: calc(100vh - 190px);
     display: block;
     margin: 0 auto;
   }
@@ -158,7 +161,6 @@
 
   /* Cartelito con el nombre del país al pasar el ratón */
   /* Leyenda de colores, abajo a la izquierda del mapa */
-  .flecha .arriba { display: none; }
 
   .leyenda {
     position: absolute;
@@ -212,8 +214,11 @@
   aside {
     background: var(--papel);
     border-radius: 18px;
-    padding: 22px;
+    padding: 18px 20px;
     min-height: 420px;
+    /* que nunca sea más alto que la pantalla; si no cabe, se desplaza dentro */
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
   }
   .inicio {
     text-align: center;
@@ -221,6 +226,7 @@
     margin-top: 110px;
     font-size: 18px;
   }
+  .pista { color: var(--suave); font-size: 17px; line-height: 1.4; }
   .inicio .flecha { font-family: var(--letra), sans-serif; font-size: 26px; color: var(--rosa); }
 
   .cabeza {
@@ -230,14 +236,14 @@
     margin-bottom: 18px;
   }
   .cabeza img {
-    width: 76px;
+    width: 60px;
     border-radius: 6px;
     box-shadow: 0 2px 6px rgba(62, 35, 55, 0.25);
   }
   .cabeza h2 {
     font-family: var(--letra), sans-serif;
     font-weight: 300;
-    font-size: 28px;
+    font-size: 26px;
     margin: 0;
   }
   .tema {
@@ -252,8 +258,8 @@
     background: white;
     border: 2px solid var(--ciruela);
     border-radius: 26px;
-    padding: 6px 18px 2px;
-    margin: 0 0 26px;
+    padding: 4px 18px 0;
+    margin: 0 0 22px;
     text-align: center;
   }
   .bocadillo::after {              /* la "colita" del bocadillo */
@@ -272,7 +278,7 @@
     position: relative;   /* para que la letra quede por encima de la colita */
     z-index: 1;
     font-family: var(--letra), sans-serif;
-    font-size: 50px;
+    font-size: 44px;
     line-height: 1.1;
     color: var(--rosa);
   }
@@ -283,17 +289,17 @@
   .otras li {
     font-family: var(--letra), sans-serif;
     font-weight: 300;
-    font-size: 23px;
-    padding: 7px 0;
+    font-size: 20px;
+    padding: 4px 0;
     border-bottom: 1px dashed #D9CDBE;
   }
 
   /* Enlace al formulario para proponer palabras */
   .proponer {
     display: block;
-    margin-top: 22px;
+    margin-top: 14px;
     text-align: center;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--rosa);
     border: 1.5px dashed var(--rosa);
     border-radius: 14px;
@@ -311,13 +317,14 @@
       row-gap: 14px;
     }
     .lateral { width: 100%; position: static; }
-    aside { min-height: 0; }
+    aside { min-height: 0; max-height: none; overflow: visible; }
     .inicio { margin: 10px 0; }
     svg   { max-height: none; }
     .leyenda { position: static; margin: 8px 6px 2px; }
     .elige { margin: 0 0 6px; }
-    .flecha .izq { display: none; }      /* en el móvil el mapa está arriba */
-    .flecha .arriba { display: inline; }
+    .objetos { margin-top: 0; }
+    .lugar-ordenador { display: none; }
+    .lugar-movil { display: inline; }
   }
 </style>
 </head>
@@ -328,7 +335,7 @@
      ========================================================= -->
 <main>
   <!-- La pregunta, encima del mapa y centrada con él -->
-  <h1>¿Cómo se dice <img id="dibujoTitulo" class="dibujo-titulo" src="" alt=""> en…?</h1>
+  <h1>¿Cómo se dice <img id="dibujoTitulo" class="dibujo-titulo" src="" alt="" hidden> en…?</h1>
 
   <div class="mapa-caja" id="mapaCaja">
     <svg id="mapa" viewBox="0 0 1060 900" role="img" aria-label="Mapa de los países hispanohablantes"></svg>
@@ -339,8 +346,8 @@
   <div class="lateral">
     <aside id="panel" aria-live="polite">
       <div class="inicio">
-        <div class="flecha"><span class="izq">←</span><span class="arriba">↑</span> ¡Toca un país!</div>
-        <p>y descubre cómo se dice allí.</p>
+        <div class="flecha">¡Empieza aquí!</div>
+        <p>Elige una palabra <span class="lugar-ordenador">abajo</span><span class="lugar-movil">arriba</span><br>y toca un país del mapa.</p>
       </div>
     </aside>
   </div>
@@ -390,7 +397,7 @@
   const cartel = document.getElementById("cartel");
   const NS     = "http://www.w3.org/2000/svg";   // necesario para crear dibujos SVG
 
-  let palabraActual = Object.keys(PALABRAS)[0];  // empieza con la primera palabra
+  let palabraActual = null;   // al principio no hay ninguna palabra elegida
   let paisActual    = null;
 
   // --- 1. Dibujar el mapa ---------------------------------------------
@@ -481,10 +488,11 @@
     botones.appendChild(b);
   }
 
-  function elegirPalabra(clave, alEmpezar) {
+  function elegirPalabra(clave) {
     palabraActual = clave;
-    // Al principio: «Elige una palabra para empezar:»; después de tocar una: «Elige otra palabra:»
-    if (!alEmpezar) document.getElementById("elige").textContent = "Elige otra palabra:";
+    // Antes ponía «Elige una palabra para empezar:»; ahora ya hay una elegida
+    document.getElementById("elige").textContent = "Elige otra palabra:";
+    document.getElementById("dibujoTitulo").hidden = false;
     botones.querySelectorAll("button").forEach(b =>
       b.setAttribute("aria-pressed", b.dataset.clave === clave));
     const dibujo = document.getElementById("dibujoTitulo");
@@ -506,6 +514,12 @@
   let leyendaAbierta = false;   // ¿se ven todas las palabras de la leyenda?
 
   function pintarMapa() {
+    // 0. Si todavía no hay palabra elegida: todo de un mismo color y sin leyenda
+    if (!palabraActual) {
+      svg.querySelectorAll(".pais").forEach(el => el.setAttribute("fill", "#D9C3A5"));
+      document.getElementById("leyenda").innerHTML = "";
+      return;
+    }
     // 1. Contamos en cuántos lugares es principal cada palabra
     const cuenta = {};
     for (const pais in PALABRAS[palabraActual].paises) {
@@ -557,6 +571,14 @@
       p.classList.toggle("elegido",
         p.dataset.nombre === nombre || PARTE_DE[p.dataset.nombre] === nombre));
 
+    // Si todavía no hay palabra elegida, solo la bandera, el nombre y una pista
+    if (!palabraActual) {
+      panel.innerHTML = '<div class="cabeza"><img src="banderas/' + BANDERAS[nombre] + '.svg" alt="Bandera de ' + nombre + '">' +
+        '<h2>' + nombre + '</h2></div>' +
+        '<p class="pista">Ahora elige una palabra <span class="lugar-ordenador">abajo</span><span class="lugar-movil">arriba</span> para ver cómo se dice aquí.</p>';
+      return;
+    }
+
     const datos  = PALABRAS[palabraActual];
     const pais   = PARTE_DE[nombre] || nombre;     // las islas usan las palabras de su país
     const lista  = datos.paises[pais] || [];
@@ -591,7 +613,7 @@
     panel.innerHTML = html;
   }
 
-  elegirPalabra(palabraActual, true);   // true = es la primera vez
+  pintarMapa();   // al principio, todo el mapa de un solo color
 </script>
 </body>
 </html>
