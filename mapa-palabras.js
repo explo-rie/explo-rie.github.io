@@ -3,12 +3,13 @@
 //  Aquí está todo el contenido. El mapa lo lee y lo dibuja solo.
 //
 //  Cómo funciona cada línea:
-//     "País": ["palabra más usada", "otra palabra", "palabra (dónde se usa)"],
+//     "País": ["palabra más usada", "otra palabra", "palabra (en el sur)"],
 //
 //  - La PRIMERA palabra de la lista sale grande: es la más habitual.
 //    Además decide el COLOR: los lugares con la misma primera palabra
 //    se pintan del mismo color. ¡Escríbela igual en todos!
 //  - Lo que pongas entre paréntesis sale en pequeño, como nota.
+//    Para los lugares, empieza con «en»: (en el norte), (en Córdoba).
 //  - Si un país no aparece en la lista, sale como «Todavía no lo sabemos».
 //  - "imagen": el dibujo que sustituye a la palabra (va en la carpeta imagenes/).
 //  - "descripcion": lo que lee el lector de pantalla a quien no ve la imagen.
@@ -38,16 +39,16 @@ const PALABRAS = {
       "República Dominicana": ["cocalecas", "rositas de maíz", "palomitas de maíz"],
       "Puerto Rico":          ["popcorn", "poscón", "rosetas de maíz"],
       "Venezuela":            ["cotufas"],
-      "Colombia":             ["crispetas", "maíz pira", "palomitas", "maíz tote (Cundinamarca y Boyacá)"],
+      "Colombia":             ["crispetas", "maíz pira", "palomitas", "maíz tote (en Cundinamarca y Boyacá)"],
       "Ecuador":              ["canguil"],
       "Perú":                 ["canchita", "popcorn"],
-      "Bolivia":              ["pipocas", "pororó (Santa Cruz y Tarija)"],
+      "Bolivia":              ["pipocas", "pororó (en Santa Cruz y Tarija)"],
       "Chile":                ["cabritas", "palomitas", "popcorn"],
-      "Argentina":            ["pochoclo", "pororó (noreste y Santa Fe)", "pururú (Córdoba)", "ancua (noroeste)", "pipoca (Misiones)"],
+      "Argentina":            ["pochoclo", "pororó (en el noreste y en Santa Fe)", "pururú (en Córdoba)", "ancua (en el noroeste)", "pipoca (en Misiones)"],
       "Paraguay":             ["pororó"],
       "Uruguay":              ["pop", "pororó"],
       "España":               ["palomitas", "palomitas de maíz"],
-      "Islas Canarias":       ["cotufas (Tenerife, La Palma, La Gomera y El Hierro)", "roscas (Gran Canaria, Lanzarote y Fuerteventura)"],
+      "Islas Canarias":       ["cotufas (en Tenerife, La Palma, La Gomera y El Hierro)", "roscas (en Gran Canaria, Lanzarote y Fuerteventura)"],
       "Guinea Ecuatorial":    ["palomitas"],
     },
   },
@@ -64,7 +65,7 @@ const PALABRAS = {
       "Nicaragua":            ["chinelas"],
       "Costa Rica":           ["chancletas", "chinelas"],
       "Panamá":               ["chancletas", "chinelas"],
-      "Cuba":                 ["chancletas", "cutaras (Oriente)"],
+      "Cuba":                 ["chancletas", "cutaras (en Oriente)"],
       "República Dominicana": ["chancletas"],
       "Puerto Rico":          ["chancletas", "chanclas"],
       "Venezuela":            ["cholas", "chancletas"],
@@ -177,7 +178,7 @@ const PALABRAS = {
     imagen: "imagenes/perrito.svg",
     descripcion: "pan alargado con una salchicha dentro",
     paises: {
-      "México":               ["hot dog", "jocho (norte)"],
+      "México":               ["hot dog", "jocho (en el norte)"],
       "Guatemala":            ["shuco", "hot dog"],
       "El Salvador":          ["hot dog"],
       "Honduras":             ["hot dog", "perro caliente"],
