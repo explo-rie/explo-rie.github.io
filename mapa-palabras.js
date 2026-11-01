@@ -71,7 +71,7 @@ const PALABRAS = {
       "Venezuela":            ["cholas", "chancletas"],
       "Colombia":             ["chanclas", "chancletas"],
       "Ecuador":              ["chancletas", "chanclas"],
-      "Perú":                 ["sayonaras", "hawaianas", "chancletas"],
+      "Perú":                 ["chancletas", "sayonaras (en Lima)", "shinelas (en la selva)"],
       "Bolivia":              ["chinelas", "hawaianas"],
       "Chile":                ["chalas", "hawaianas"],
       "Argentina":            ["ojotas"],
