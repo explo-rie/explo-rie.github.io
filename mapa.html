@@ -583,6 +583,8 @@ body::before {
     svg.querySelectorAll(".pais").forEach(p =>
       p.classList.toggle("elegido",
         p.dataset.nombre === nombre || PARTE_DE[p.dataset.nombre] === nombre));
+     // Poner el país elegido encima de los demás, para que se vea todo su borde
+    svg.querySelectorAll(".pais.elegido").forEach(p => p.parentNode.appendChild(p));
 
     // Si todavía no hay palabra elegida, solo la bandera, el nombre y una pista
     if (!palabraActual) {
