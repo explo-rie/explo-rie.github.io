@@ -152,8 +152,9 @@
     transition: fill 0.4s;
   }
   .pais:hover, .pais:focus, .pais.encima { stroke: var(--ciruela); stroke-width: 1.6; outline: none; }
-  .pais.elegido             { fill: var(--rosa) !important; stroke: var(--ciruela); stroke-width: 1.6; }
-
+  /* Bordes que se dibujan encima de todos los países (no reciben clics) */
+  .borde-encima  { fill: none; pointer-events: none; stroke: var(--ciruela); stroke-width: 1.6; }
+  .borde-elegido { fill: none; pointer-events: none; stroke: #000; stroke-width: 2.5; }
   /* Recuadros de España y Guinea Ecuatorial */
   .recuadro { fill: var(--marfil); stroke: #D9CDBE; stroke-width: 1.5; }
   .etiqueta.pequena { font-size: 18px; }
@@ -447,6 +448,9 @@ body::before {
     });
     p.dataset.nombre = nombre;
     conectar(p, nombre);
+     // Al pasar el ratón, se dibuja su borde encima de todo
+    p.addEventListener("mouseenter", () => ponerBorde(p, "borde-encima"));
+    p.addEventListener("mouseleave", () => quitarBordes("borde-encima"));
 
     // Los lugares muy pequeños (islas, Puerto Rico…) son difíciles de tocar.
     // Les ponemos una "zona invisible" más grande alrededor que también funciona.
@@ -461,11 +465,19 @@ body::before {
       });
       capaZonas.appendChild(zona);        // la zona va debajo de los países
       conectar(zona, nombre);
-      zona.addEventListener("mouseenter", () => p.classList.add("encima"));
-      zona.addEventListener("mouseleave", () => p.classList.remove("encima"));
+      zona.addEventListener("mouseenter", () => ponerBorde(p, "borde-encima")
+      zona.addEventListener("mouseleave", () => quitarBordes("borde-encima")
     }
   }
-
+  // Copia la forma de un país en una línea nueva, encima de todos los países
+  function ponerBorde(p, clase) {
+    const borde = crear("path", { d: p.getAttribute("d"), class: clase });
+    p.parentNode.appendChild(borde);
+  }
+  function quitarBordes(clase) {
+    svg.querySelectorAll("." + clase).forEach(b => b.remove());
+  }
+     
   // Qué pasa al tocar, al usar el teclado o al pasar el ratón
   function conectar(el, nombre) {
     el.addEventListener("click", () => {
@@ -583,8 +595,9 @@ body::before {
     svg.querySelectorAll(".pais").forEach(p =>
       p.classList.toggle("elegido",
         p.dataset.nombre === nombre || PARTE_DE[p.dataset.nombre] === nombre));
-     // Poner el país elegido encima de los demás, para que se vea todo su borde
-    svg.querySelectorAll(".pais.elegido").forEach(p => p.parentNode.appendChild(p));
+    // Dibujar el borde negro del país elegido encima de todo
+    quitarBordes("borde-elegido");
+    svg.querySelectorAll(".pais.elegido").forEach(p => ponerBorde(p, "borde-elegido"));
 
     // Si todavía no hay palabra elegida, solo la bandera, el nombre y una pista
     if (!palabraActual) {
